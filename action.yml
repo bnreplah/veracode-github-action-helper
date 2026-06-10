@@ -1,0 +1,56 @@
+name: "Veracode Java API Wrapper"
+description: "Run any Veracode Java API Wrapper command from GitHub Actions"
+author: "Your Name"
+
+inputs:
+  action:
+    description: "Veracode action to execute (e.g., UploadAndScan, GetAppList, etc.)"
+    required: true
+
+  vid:
+    description: "Veracode API ID"
+    required: true
+
+  vkey:
+    description: "Veracode API Key"
+    required: true
+
+  java_wrapper_version:
+    description: "Version of Veracode Java API Wrapper"
+    required: false
+    default: "v26.3.19.0"
+
+  extra_args:
+    description: >
+      Additional CLI arguments to pass directly to the wrapper.
+      Example: -appname "MyApp" -createprofile true -filepath build.zip
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install Java
+      uses: 
+    - name: Download Veracode Java API Wrapper
+      shell: bash
+      run: |
+        cd src
+        chmod +x install_latest_wrapper.sh
+        ./install_latest_wrapper.sh
+        cd -
+
+    - name: Run Veracode API Wrapper
+      shell: bash
+      env:
+        VID: ${{ inputs.vid }}
+        VKEY: ${{ inputs.vkey }}
+      run: |
+        echo "Running Veracode action: ${{ inputs.action }}"
+
+        java -jar src/VeracodeJavaAPI.jar \
+          -vid "$VID" \
+          -vkey "$VKEY" \
+          -action "${{ inputs.action }}" \
+          ${{ inputs.extra_args }}
